@@ -28,8 +28,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 
-WSGI_APPLICATION = 'BBS.wsgi.application'
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 DATABASE_PASSWORD = os.environ['DATABASE_PASSWORD']
@@ -41,7 +39,7 @@ DATABASES = {
         'PASSWORD': DATABASE_PASSWORD,
         'HOST': '127.0.0.1',
         'PORT': 3306,
-        'CHARSET': 'utf8mb4',
+        'CHARSET': 'utf8',
     }
 }
 
