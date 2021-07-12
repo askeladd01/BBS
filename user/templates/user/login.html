@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    登录
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-primary">
+                    <div class="panel-heading"><h3 class="panel-title">登录</h3></div>
+                    <div class="panel-body">
+                        <form id="login_form">
+                            {% csrf_token %}
+                            {% for form in form_obj %}
+                                <div class="form-group">
+                                    <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                                    {{ form }}
+                                    <span class="pull-right text-danger"></span>
+                                </div>
+                            {% endfor %}
+                            <div class="form-group">
+                                <label for="id_code">验证码</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" name="code" id="id_code" class="form-control">
+                                        <span class="pull-right text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <img src="{% url 'get_code' %}" alt="验证码" width="344px" height="34px" id="id_img">
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{% url 'forget_password' %}" class="btn btn-info pull-left">忘记密码</a>
+                            <input type="button" class="btn btn-info pull-right" value="登录" id="id_commit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#id_img').click(function () {
+            let old_url = $(this).attr('src')
+            $(this).attr('src', old_url+='?')
+        })
+
+        $('#id_commit').click(function (){
+            $.ajax({
+                url:'',
+                type:'post',
+                data:{
+                    'username': $('#id_username').val(),
+                    'password': $('#id_password').val(),
+                    'code': $('#id_code').val(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                },
+                success: function (args){
+                    if(args.code === 1000){
+                        window.location.href = args.url;
+                    }else if(args.code === 2000){
+                        $.each(args.msg, function (index, obj){
+                            let targetId = '#id_'+index;
+                            $(targetId).next().text(obj[0]).parent().addClass('has-error')
+                        })
+                    }else {
+                        $('#id_code').next().text(args.msg).parent().addClass('has-error')
+                    }
+                }
+            })
+        })
+
+        $('input').focus(function () {
+            $(this).next().text('').parent().removeClass('has-error')
+        })
+    </script>
+
+{% endblock %}

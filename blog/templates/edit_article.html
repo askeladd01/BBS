@@ -1,0 +1,73 @@
+{% extends 'user/backend_base.html' %}
+
+{% block backend %}
+
+    <h3 class="text-center">编辑文章</h3>
+    <div class="panel-body">
+        <form action="" method="post" novalidate>
+            {% csrf_token %}
+            {% for form in form_obj %}
+                <div class="form-group">
+                    <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                    {{ form }}
+                    <span class="pull-right text-danger">{{ form.errors }}</span>
+                </div>
+            {% endfor %}
+            <p class="text" style="font-weight: 700">文章分类</p>
+            <div>
+                {% for type in user_types %}
+                    {% if type == article_obj_type %}
+                        <input type="radio" value="{{ type.pk }}" name="article_type" checked>{{ type.type_name }}
+                    {% else %}
+                        <input type="radio" value="{{ type.pk }}" name="article_type">{{ type.type_name }}
+                    {% endif %}
+                {% endfor %}
+                <span class="text-danger pull-right type_error"></span>
+            </div>
+            <hr>
+            <p class="text" style="font-weight: 700">文章标签</p>
+            <div>
+                {% for tag in user_tags %}
+                    {% if tag in article_obj_tags %}
+                        <input type="checkbox" value="{{ tag.pk }}" name="tags" checked>{{ tag.tag_name }}
+                    {% else %}
+                        <input type="checkbox" value="{{ tag.pk }}" name="tags">{{ tag.tag_name }}
+                    {% endif %}
+                {% endfor %}
+                <span class="text-danger pull-right tag_error"></span>
+            </div>
+            <hr>
+            <input type="submit" class="btn btn-info pull-right" value="提交" id="article_submit">
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    {% load static %}
+    <script charset="utf-8" src="{% static 'kindeditor/kindeditor-all-min.js' %}"></script>
+    <script>
+        KindEditor.ready(function (K) {
+            window.editor = K.create('#id_content', {
+                width: '100%',
+                height: '600px',
+                resizeType: 1,
+                uploadJson: '/user/upload_img/',
+                extraFileUploadParams: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }
+            });
+        });
+        $('#article_submit').click(function () {
+            // 前端判断内容是否为空
+            $('.article_error').text('');
+            if(!$('input[type=radio]').is(':checked')){
+                $('.type_error').text('分类还没选择哦~');
+                return false;
+            }else if(!$('input[type=checkbox]').is(':checked')){
+                $('.tag_error').text('标签还没选择哦~');
+                return false;
+            }
+        })
+    </script>
+{% endblock %}

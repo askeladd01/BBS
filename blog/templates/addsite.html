@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    创作中心
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                 <div class="panel panel-primary">
+                    <div class="panel-heading"><h3 class="panel-title text-center">个人站点</h3></div>
+                    <div class="panel-body">
+                        <form id="reg_form">
+                            {% csrf_token %}
+                            {% for form in form_obj %}
+                                <div class="form-group">
+                                    <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                                    {{ form }}
+                                    <p class="text-danger">{{ form.errors.0 }}</p>
+                                </div>
+                            {% endfor %}
+                            <input type="button" class="btn btn-info pull-right" value="创建" id="id_commit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block js %}
+        <script>
+            $('#id_commit').click(function () {
+                $.ajax({
+                    url:'',
+                    type:'post',
+                    data:{
+                        'site_name': $('#id_site_name').val(),
+                        'site_title': $('#id_site_title').val(),
+                        'site_theme': $('#id_site_theme').val(),
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    success: function (args){
+                    if(args.code === 1000){
+                        window.location.href = args.url;
+                    }else if(args.code === 2000){
+                        $.each(args.msg, function (index, obj){
+                            let targetId = '#id_'+index;
+                            $(targetId).next().text(obj[0]).parent().addClass('has-error')
+                        })
+                    }else {
+                        $('#id_code').next().text(args.msg).parent().addClass('has-error')
+                    }
+                }
+
+                })
+            })
+            $('input').focus(function () {
+            $(this).next().text('').parent().removeClass('has-error')
+        })
+        </script>    
+    {% endblock %}
+{% endblock %}

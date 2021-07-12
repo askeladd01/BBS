@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{%  block header %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'sweetalert/sweetalert.css' %}">
+    <script src="{% static 'sweetalert/sweetalert.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="panel panel-primary">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">创作中心</div>
+                    <!-- List group -->
+                    <ul class="list-group">
+                        <li class="list-group-item"><a href="{% url 'backend' %}">稿件管理</a></li>
+                        <li class="list-group-item"><a href="{% url 'add_article' %}">发布文章</a></li>
+                        <li class="list-group-item"><a href="{% url 'edit_type_and_tag' %}">添加分类</a></li>
+                        <li class="list-group-item"><a href="{% url 'data-center' %}">数据中心</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-10">
+                {% block backend %}
+                <div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab"
+                                                                  data-toggle="tab">基本信息</a></li>
+                        <li role="presentation"><a href="#security" aria-controls="profile" role="tab"
+                                                   data-toggle="tab">账号安全</a>
+                        </li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="info">
+                            <div>我的头像<img class="media-object  avatar"
+                                          style="display: inline-block; border-radius: 50%; margin-left: 50px"
+                                          src="/user/media/{{ user.avatar }}"
+                                          alt="用户头像" width="200">
+                            </div>
+                            <div>我的昵称</div>
+                            <div>注册时间 {{ user.date_joined }}</div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="security">
+                            <div>手机号码</div>
+                            <div>登录密码 ******
+                                <a href="{% url 'set_password' %}">
+                                    <button class="btn btn-info">修改密码</button>
+                                </a>
+                            </div>
+                            <div>邮箱地址 {{ user.email }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

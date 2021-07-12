@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+
+{{% block usersite %}
+    <a class="navbar-brand" href="#">{{ article_obj.blog.site_title }}</a>
+{% endblock %}
+
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static '/blog/article.css/' %}">
+{% endblock %}
+
+{% load like_tags %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                {#  正文内容  #}
+                <div>
+                    <h3 class="text-center">{{ article_obj.title }}</h3>
+                    <ul class="blog_infos">
+                        <li>作者： {{ username }}</li>
+                        <li>分类：<a
+                                href="{% url 'site_filter' username 'type' article_obj.pk %}">{{ article_obj.article_type }}</a>
+                        </li>
+                        <li>发表日期： {{ article_obj.create_time }}</li>
+                        {% load read_tags %}
+                        <li>阅读量({% get_read_count article_obj %})</li>
+                        {% load comment_tags %}
+                        <li>评论数({% get_comment_count article_obj %})</li>
+                    </ul>
+                    <div class="blog_content">{{ article_obj.content|safe }}</div>
+                    <hr>
+                    <div>
+                        <ul class="pager">
+                            {% if previous_article %}
+                                <li class="previous"><a
+                                        href="{% url 'article_detail' username previous_article.pk %}"><span
+                                        aria-hidden="true"></span> 上一篇：{{ previous_article.title }}</a></li>
+                            {% else %}
+                                <li class="previous"><span aria-hidden="true">上一篇：没有更多了</span></li>
+                            {% endif %}
+                            {% if next_article %}
+                                <li class="next"><a href="{% url 'article_detail' username next_article.pk %}"><span
+                                        aria-hidden="true"></span> 下一篇：{{ next_article.title }}</a></li>
+                            {% else %}
+                                <li class="next"><span aria-hidden="true">下一篇：没有更多了</span></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="clearfix">标签：
+                        {% for article_tag in tag_obj %}
+                            <span><a
+                                    href="{% url 'site_filter' username 'tag' article_tag.pk %}">{{ article_tag.tag }}</a></span>
+                        {% endfor %}
+                        {#   点赞点踩     #}
+                        <div id="div_digg">
+                            <div class="diggit"
+                                 onclick="up_down(this, '{% get_content_type article_obj %}', {{ article_obj.pk }})">
+                                <span class="diggnum">{% get_up_num article_obj %}</span>
+                            </div>
+                            <div class="buryit"
+                                 onclick="up_down(this, '{% get_content_type article_obj %}', {{ article_obj.pk }})">
+                                <span class="burynum">{% get_down_num article_obj %}</span>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="diggword" id="digg_tips">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {#   评论区域    #}
+                {% if user.is_authenticated %}
+                    <ul class="media-list">
+                        <li class="media">
+                            <div class="media-left">
+                                <img class="media-object  avatar" src="/user/media/{{ user.avatar }}"
+                                     alt="用户头像" width="70">
+                            </div>
+                            <div class="media-body">
+                                {#                         回复功能#}
+                                <form id="comment_form">
+                                    {% csrf_token %}
+                                    {% get_comment_form article_obj as comment_form %}
+                                    {{ comment_form.media }}
+                                    {{ comment_form.as_p }}
+                                    <span class="text-danger pull-left" id="comment_error"></span>
+                                    <input type="button" value="发表评论" class="btn pull-right" id="comment_submit">
+                                </form>
+                            </div>
+                        </li>
+                        <hr>
+                    </ul>
+                {% else %}
+                    <p class="text-center">请先登录</p>
+                    <p class="text-center">
+                        <a href="{% url 'login' %}?from={{ request.get_full_path }}">登录</a>
+                        <span>or</span>
+                        <a href="{% url 'register' %}?from={{ request.get_full_path }}">注册</a>
+                    </p>
+                {% endif %}
+
+                {#  评论列表  #}
+                {% get_comments article_obj as comments %}
+
+                <ul class="media-list comment_list">
+                    {% for comment in comments %}
+                        <li class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object avatar_comment"
+                                         src="/user/media/{{ comment.user.avatar }}" alt="用户头像" width="50">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">{{ comment.user.get_name }}</h4>
+                                {{ comment.content|safe }}
+                                <div class="comment-bottom ">
+                                    <span>{{ comment.comment_time|date:'Y-m-d H:i:s' }}</span>
+                                    {#   点赞点踩     #}
+                                    <div class="comment_like">
+                                        <div class="diggit"
+                                             onclick="up_down(this, '{% get_content_type comment %}', {{ comment.pk }})">
+                                            <span class="glyphicon glyphicon-thumbs-up diggnum">{% get_up_num comment %}</span>
+                                        </div>
+                                        <div class="buryit"
+                                             onclick="up_down(this, '{% get_content_type comment %}', {{ comment.pk }})">
+                                            <span class="glyphicon glyphicon-thumbs-down burynum">{% get_down_num comment %}</span>
+                                        </div>
+                                        <div class="diggword">
+                                        </div>
+                                    </div>
+                                    <sapn class="glyphicon"><a class="reply" username="{{ comment.user.get_name }}"
+                                                               comment_id="{{ comment.pk }}">回复</a></sapn>
+                                </div>
+                                <ul class="media-list reply_list">
+                                    {% for reply in comment.root_comment.all %}
+                                        <li class="media">
+                                            <div class="media-left">
+                                                <a href="#">
+                                                    <img class="media-object avatar_comment"
+                                                         src="/user/media/{{ reply.user.avatar }}" alt="用户头像"
+                                                         width="40">
+                                                </a>
+                                            </div>
+                                            <div class="media-body">
+                                                <h4 class="media-heading">{{ reply.user.get_name }}</h4>
+                                                {{ reply.content|safe }}
+                                                <div class="comment-bottom ">
+                                                    <span>{{ reply.comment_time|date:'Y-m-d H:i:s' }}</span>
+                                                    {#   点赞点踩     #}
+                                                    <div class="comment_like">
+                                                        <div class="diggit"
+                                                             onclick="up_down(this, '{% get_content_type reply %}', {{ reply.pk }})">
+                                                            <span class="glyphicon glyphicon-thumbs-up diggnum">{% get_up_num reply %}</span>
+                                                        </div>
+                                                        <div class="buryit"
+                                                             onclick="up_down(this, '{% get_content_type reply %}', {{ reply.pk }})">
+                                                            <span class="glyphicon glyphicon-thumbs-down burynum">{% get_down_num reply %}</span>
+                                                        </div>
+                                                        <div class="diggword">
+                                                        </div>
+                                                    </div>
+                                                    <sapn class="glyphicon"><a class="reply"
+                                                                               username="{{ reply.user.get_name }}"
+                                                                               comment_id="{{ reply.pk }}">回复</a></sapn>
+
+                                                </div>
+                                            </div>
+
+                                        </li>
+
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </li>
+                        <hr>
+                    {% empty %}
+                        <div id="comment_empty">不要让楼主寂寞太久~~~</div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        function up_down(obj, content_type, object_id) {
+            let is_up = $(obj).hasClass('diggit');
+            $.ajax({
+                url: "{% url 'up_down' %}",
+                type: 'get',
+                data: {
+                    'object_id': object_id,
+                    'is_up': is_up,
+                    'content_type': content_type,
+                },
+                success: function (args) {
+                    if (args.code === 1000) {
+                        // 更新点赞数量
+                        if (is_up) {
+                            let up_element = $(obj.getElementsByClassName('diggnum'));
+                            up_element.text(args['up_num']);
+                            let down_element = $($(obj).next()[0].getElementsByClassName('burynum'));
+                            down_element.text(args['down_num']);
+                        } else {
+                            let up_element = $($(obj).prev()[0].getElementsByClassName('diggnum'));
+                            up_element.text(args['up_num']);
+                            let down_element = $(obj.getElementsByClassName('burynum'));
+                            down_element.text(args['down_num']);
+                        }
+                    } else {
+                        // 唤醒登录模态框
+                        $('#loginModal').modal('show');
+                    }
+                }
+            })
+        }
+
+        $('#comment_submit').click(function () {
+            // 前端判断内容是否为空
+            $('#comment_error').text('');
+            if (CKEDITOR.instances['id_content'].document.getBody().getText().trim() === '') {
+                $('#comment_error').text('评论内容不能为空哦~');
+                return false;
+            }
+            //更新输入框内的数据到CKeditor真实文本域中
+            CKEDITOR.instances['id_content'].updateElement();
+            $.ajax({
+                url: "{% url 'update_comment' %}",
+                type: 'post',
+                data: $($(this).parent()[0]).serialize(),
+                cache: false,
+                success: function (args) {
+                    if (args['code'] === 1000) {
+                        // 临时插入评论
+                        let comment_html = '<li class="media">' +
+                            '<div class="media-left">' +
+                            '<a href="#">' +
+                            '<img class="media-object avatar_comment"' +
+                            'src="/user/media/{{ article_obj.blog.userinfo.avatar }}" alt="用户头像" width="50">' +
+                            '</a>' +
+                            '</div>' +
+                            '<div class="media-body">' +
+                            '<h4 class="media-heading">' + args["username"] + '</h4>' +
+                            args["content"] +
+                            '<div class="comment-bottom ">' +
+                            '<span>' + args["comment_time"] + '</span>' +
+                            {#   点赞点踩     #}
+                            '<div class="comment_like">' +
+                            '<div class="diggit"' +
+                            'onclick="up_down(this, \'comment\', ' + args["pk"] + ')">' +
+                            '<span class="glyphicon glyphicon-thumbs-up diggnum">0</span>' +
+                            '</div>' +
+                            '<div class="buryit"' +
+                            'onclick="up_down(this, \'comment\', ' + args["pk"] + ')">' +
+                            '<span class="glyphicon glyphicon-thumbs-down burynum">0</span>' +
+                            '</div>' +
+                            '<div class="diggword">' +
+                            '</div>' +
+                            '</div>' +
+                            '<sapn class="glyphicon"><a class="reply" username="' + args["username"] + '"' +
+                            'comment_id="' + args["pk"] + '">回复</a></sapn>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>' +
+                            '<hr>'
+                        $('.comment_list').prepend(comment_html);
+                        //清空输入框
+                        CKEDITOR.instances['id_content'].setData('');
+                        //将输入框的id值重置
+                        $('#reply_comment_id').val('0');
+                    } else {
+                        $('#comment_error').text(data['message'])
+                    }
+                }
+            })
+        })
+        // 回复功能
+        $('.reply').click(function () {
+            let commentUsername = $(this).attr('username');
+            let reply_comment_id = $(this).attr('comment_id');
+            $('#reply_comment_id').val(reply_comment_id);
+            $('html').animate({scrollTop: $('#comment_form').offset().top - 60}, 200, function () {
+                    CKEDITOR.instances['id_content'].document.getBody().setText('@' + commentUsername + ':');
+                    CKEDITOR.instances['id_content'].focus();
+                }
+            );
+        })
+
+    </script>
+{% endblock %}

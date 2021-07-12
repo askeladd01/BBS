@@ -1,0 +1,51 @@
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">文章分类</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="list-group">
+            {% for article_type in article_types %}
+                <li class="list-group-item">
+                    <a href="{% url 'site_filter' username 'type' article_type.0 %}">
+                        {{ article_type.1 }} ({{ article_type.2 }})</a>
+                </li>
+            {% empty %}
+                <li>暂无分类</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div  style="margin-top: 30px" class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">文章标签</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="list-group">
+            {% for article_tag in article_tags %}
+                <li class="list-group-item">
+                    <a href="{% url 'site_filter' username 'tag' article_tag.0 %}">
+                        {{ article_tag.1 }} ({{ article_tag.2 }})</a>
+                </li>
+            {% empty %}
+                <li>暂无分类</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div  style="margin-top: 30px" class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">日期归档</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="list-group">
+            {% for article_date in article_dates %}
+                <li class="list-group-item">
+                    <a href="{% url 'site_filter' username 'date' article_date.0|date:'Y-m' %}">
+                        {{ article_date.0|date:'Y年m月' }} ({{ article_date.1 }})</a>
+                </li>
+            {% empty %}
+                <li>暂无分类</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

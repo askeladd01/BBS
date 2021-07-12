@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{page_title }}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-primary">
+                  <div class="panel-heading"><h3 class="panel-title">{{ form_title }}</h3></div>
+                  <div class="panel-body">
+                    <form action="" method="post" novalidate>
+                        {% csrf_token %}
+                        {% for form in form_obj %}
+                            {% if not form.is_hidden %}
+                                <div class="form-group">
+                                    <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                                    {{ form }}
+                                    <span class="text-danger">{{ form.errors.0 }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <p id="tips" class="text-danger"></p>
+                        <div class="pull-left">{% block buttons %}{% endblock %}</div>
+                        <div class="pull-right">
+                            <input type="submit" value="{{ submit_text }}" class="btn btn-info">
+                            <button type="button" class="btn btn-info"
+                                        onclick="window.location.href='{{ redirect_url }}'">返回</button>
+                        </div>
+
+                    </form>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block loginmodel %}
+
+{% endblock %}

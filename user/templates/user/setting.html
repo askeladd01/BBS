@@ -1,0 +1,96 @@
+{% extends 'user/userinfo.html' %}
+
+
+
+{% block setting %}
+    <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#info" aria-controls="home" role="tab"
+                                                      data-toggle="tab">基本信息</a></li>
+            <li role="presentation"><a href="#security" aria-controls="profile" role="tab" data-toggle="tab">账号安全</a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="info">
+                <div>我的头像<img class="media-object  avatar"
+                              style="display: inline-block; border-radius: 50%; margin-left: 50px; margin-top: 10px"
+                              src="/user/media/{{ user.avatar }}"
+                              alt="用户头像" width="100">
+                    <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#myModal"
+                            style="margin-top: 50px">
+                        修改头像
+                    </button>
+                </div>
+                <hr>
+                <div>我的昵称 : <h4 style="display: inline-block; margin-left: 50px">{{ user.get_name }}</h4>
+                    <button type="button" class="btn btn-info pull-right" style="display: inline-block">
+                        <a href="{% url 'change_nickname' %}" style="text-decoration: none;color:white">修改昵称</a>
+                    </button>
+                </div>
+                <hr>
+                <div>注册时间 {{ user.date_joined }}</div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="security">
+                <div>手机号码</div>
+                <hr>
+                <div>登录密码:<p style="display: inline-block; margin-left: 20px">******</p>
+                    <a href="{% url 'set_password' %}">
+                        <button class="btn btn-info pull-right" style="display: inline-block">修改密码</button>
+                    </a>
+                </div>
+                <hr>
+                <div> 邮箱地址:<h4 style="display: inline-block; margin-left: 20px">{{ user.email }}</h4>
+                    <a href="{% url 'change_email' %}">
+                        <button class="btn btn-info pull-right" style="display: inline-block">换绑邮箱</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title text-center" id="myModalLabel">修改头像</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'set_avatar' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        预览头像
+                        <img src="/user/media/{{ user.avatar }}" alt="" width="200" id="myimg"
+                             style="margin-left: 130px; margin-bottom: 10px">
+                        <div class="modal-footer">
+                            <label for="avatar_file">
+                                <span class="btn btn-info">选择图片</span>
+                                <input type="file" name="avatar" id="avatar_file" style="display: none">
+                            </label>
+                            <button type="submit" class="btn btn-info" style="margin-left: 365px">应用更改</button>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $('#avatar_file').change(function () {
+            let Reader = new FileReader();
+            let avatar = $(this)[0].files[0];
+            Reader.readAsDataURL(avatar)
+            Reader.onload = function () {
+                $('#myimg').attr('src', Reader.result)
+            }
+        })
+    </script>
+{% endblock %}

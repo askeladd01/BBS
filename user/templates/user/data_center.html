@@ -1,0 +1,79 @@
+{% extends 'user/backend_base.html' %}
+
+{% block header %}
+<script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+{% endblock %}
+
+
+{% block backend %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div id="container" style="width: 700px;height:500px;margin: 10px"></div>
+            </div>
+            <div class="col-md-3">
+                <div  class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">昨日阅读排行</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            {% for hot_article in yestarday_hot_articles %}
+                                <li class="list-group-item"><a
+                                        href="{% url 'article_detail' hot_article.blog__userinfo__username hot_article.id %}">{{ hot_article.title }}</a>
+                                </li>
+                            {% empty %}
+                                <li>昨日暂无热门博客</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 30px" class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">7日阅读排行</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            {% for hot_article in week_hot_articles %}
+                                <li class="list-group-item"><a
+                                        href="{% url 'article_detail' hot_article.blog__userinfo__username hot_article.id %}">{{ hot_article.title }}</a>
+                                </li>
+                            {% empty %}
+                                <li>前7日暂无热门博客</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 图表容器 DOM -->
+    <script>
+        // 图表配置
+        let options = {
+            chart: {
+                type: 'line'                          //指定图表的类型，默认是折线图（line）
+            },
+            title: {
+                text: '过去7天文章阅读量'                 // 标题
+            },
+            xAxis: {
+                categories: {{ dates|safe }}   // x 轴分类
+            },
+            yAxis: {
+                title: {
+                    text: null                // y 轴标题
+                },
+                gridLineDashStyle: 'Dash',
+            },
+            series: [{                              // 数据列
+                name: '阅读量',                        // 数据列名
+                data: {{ read_nums }}                     // 数据
+            }],
+            legend: {enabled:false},
+            credits:{enabled:false},
+        };
+        // 图表初始化函数
+        let chart = Highcharts.chart('container', options);
+    </script>
+{% endblock %}

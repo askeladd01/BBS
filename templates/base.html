@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    {% load static %}
+    <link href="{% static '/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="{% static '/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static '/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+    {% block header %}{% endblock %}
+    {% block css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {% block usersite %}
+                <a class="navbar-brand" href="{% url 'home' %}">BBS</a>
+            {% endblock %}
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav" id="id_navbar">
+                <li class="active"><a href="{% url 'home' %}">首页<span class="sr-only">(current)</span></a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'site' user.username %}">我的博客</a></li>
+                {% else %}
+                    <li id="blog_login"><a>我的博客</a></li>
+                {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">
+                            {{ user.get_name }}
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'userinfo' %}">个人中心</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href='{% url 'logout' %}'>退出</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}?next={{ request.get_full_path }}">登录</a></li>
+                    <li><a href="{% url 'register' %}?next={{ request.get_full_path }}">注册</a></li>
+                {% endif %}
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+
+
+{% block content %}{% endblock %}
+
+{% block loginmodel %}
+    <!--登录模态框-->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog  modal-sm" role="document">
+            <div class="modal-content">
+                <form id="login_modal_form" action="" method="post">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">登录</h4>
+                    </div>
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        {% for form in login_modal_form %}
+                            <div class="form-group">
+                                <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                                {{ form }}
+                                <span class="pull-right text-danger"></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">登录</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('#login_modal_form').submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: '{% url 'login_for_modal' %}',
+                type: 'post',
+                data: $(this).serialize(),
+                cache: false,
+                success: function (args) {
+                    if (args.code === 1000) {
+                        window.location.reload();
+                    } else {
+                        $.each(args.msg, function (index, obj) {
+                            let targetId = '#id_' + index;
+                            $(targetId).next().text(obj[0]).parent().addClass('has-error')
+                        })
+                    }
+                }
+            });
+        });
+        $('input').focus(function () {
+            $(this).next().text('').parent().removeClass('has-error')
+        })
+        $('#blog_login').click(function () {
+            $('#loginModal').modal('show');
+        })
+    </script>
+{% endblock %}
+<script type="text/javascript">
+    //动态导航栏，找到li元素，对a标签的连接地址进行判断，与当前浏览器地址一致添加active，否则取消
+    $(function () {
+        $('#id_navbar').find('li').each(function () {
+            let a = $(this).find('a:first')[0];
+            if($(a).attr('href')===location.pathname){
+                $(this).addClass('active');
+            }else {
+                $(this).removeClass('active')
+            }
+        })
+    })
+
+
+</script>
+{% block js %}{% endblock %}
+</body>
+</html>

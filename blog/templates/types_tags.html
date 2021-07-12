@@ -1,0 +1,201 @@
+{% extends 'user/backend_base.html' %}
+
+{% block title %}
+    创作中心
+{% endblock %}
+
+{% block backend %}
+
+    <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#id_types" aria-controls="home" role="tab"
+                                                      data-toggle="tab">我的分类</a></li>
+            <li role="presentation"><a href="#id_tags" aria-controls="profile" role="tab" data-toggle="tab">我的标签</a>
+            </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="id_types">
+                {#    展示当前用户所有的分类#}
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>分类</th>
+                        <th>操作</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for type in article_types %}
+                        <tr>
+                            <td><a href="{% url 'site_filter' user.username 'type' type.pk %}">{{ type.type_name }}</a>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-xs">编辑</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-xs del" obj_id="{{ type.pk }}" del_for="type">删除</button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3"><p class="text-center">还没有分类哦~~~</p></td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#typeModal">
+                    添加文章分类
+                </button>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="id_tags">
+                {#    展示当前用户所有的标签#}
+                <table class="table table-hover table-striped">
+                    <thead>
+                    <tr>
+                        <th>标签</th>
+                        <th>操作</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tag in article_tags %}
+                        <tr>
+                            <td><a href="{% url 'site_filter' user.username 'tag' tag.pk %}">{{ tag.tag_name }}</a></td>
+                            <td>
+                                <button class="btn btn-info btn-xs">编辑</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-xs del" obj_id="{{ tag.pk }}" del_for="tag">删除</button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3"><p class="text-center">还没有标签哦~~~</p></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#tagModal">
+                    添加文章标签
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="typeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加文章分类</h4>
+                </div>
+                <form action="{% url 'add_type_or_tag' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <label for="">分类名称</label>
+                        <input type="text" class="form-control addtype" name="article_type">
+                        <span class="text-danger pull-right addtype_error"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-info" id="id_addtype">确定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加文章标签</h4>
+                </div>
+                <form action="{% url 'add_type_or_tag' %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <label for="">标签名称</label>
+                        <input type="text" class="form-control addtag" name="article_tag">
+                        <span class="text-danger pull-right addtag_error"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-info" id="id_addtag">确定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $('#id_addtype').click(function () {
+            if ($('.addtype').val() === '') {
+                $('.addtype_error').text('分类名称不能为空哦~~~')
+                return false;
+            }
+        })
+        $('#id_addtag').click(function () {
+            if ($('.addtag').val() === '') {
+                $('.addtag_error').text('标签名称不能为空哦~~~')
+                return false;
+            }
+        })
+        $('.del').on('click', function () {
+            $('.del').on('click', function () {
+                // 先将当前标签对象存储起来
+                let currentBtn = $(this);
+                // 二次确认弹框
+                swal({
+                        title: "",
+                        text: "确定要删除吗?",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonClass: "btn-danger",
+                        confirmButtonText: "确定",
+                        cancelButtonText: "取消",
+                        closeOnConfirm: false,
+                        closeOnCancel: false,
+                        showLoaderOnConfirm: true
+                    },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            // 朝后端发送ajax请求删除数据之后 再弹下面的提示框
+                            $.ajax({
+                                url: '{% url "delete_type_or_tag" %}',
+                                type: 'post',
+                                data: {
+                                    'delete_for': currentBtn.attr('del_for'),
+                                    'delete_id': currentBtn.attr('obj_id'),
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+                                success: function (args) {
+                                    // 判断响应状态码 然后做不同的处理
+                                    if (args.code === 1000) {
+                                        swal("", '删除成功', "success");
+                                        currentBtn.parent().parent().remove()
+                                    } else if(args.code === 2000) {
+                                        swal('', '数据不存在', 'error')
+                                    } else if(args.code === 2001){
+                                        swal('', '出现了未知的错误', 'info')
+                                    }
+                                }
+                            })
+                        } else {
+                            swal("", "取消成功", "error");
+                        }
+                     });
+            })
+        })
+    </script>
+{% endblock %}
+

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+    注册
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                 <div class="panel panel-primary">
+                    <div class="panel-heading"><h3 class="panel-title text-center">注册</h3></div>
+                    <div class="panel-body">
+                        <form id="reg_form">
+                            {% csrf_token %}
+                            {% for form in RegForm_obj %}
+                                <div class="form-group">
+                                    <label for="{{ form.auto_id }}">{{ form.label }}</label>
+                                    {{ form }}
+                                    <p class="text-danger">{{ form.errors.0 }}</p>
+                                </div>
+                            {% endfor %}
+                            <p id="tips" class="text-danger"></p>
+                            <button id="send_code" class="btn btn-info pull-left" type="button">发送验证码</button>
+                            <input type="button" class="btn btn-info pull-right" value="注册" id="id_commit">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block loginmodel %}
+
+    {% endblock %}
+
+
+    <script>
+        $('#send_code').click(function (){
+            let email = $('#id_email').val();
+            if(email === ''){
+                $('#tips').text('* 邮箱不能为空')
+                return false;
+            }
+            $.ajax({
+                url: '{% url 'send_email_code' %}',
+                type: 'post',
+                data:{'email':email, 'send_for': '注册账号', 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                cache:false,
+                success: function (data) {
+                    if(data['status']==='ERROR_time'){
+                        alert('不能重复发送')
+                    }else {
+                        alert('发送成功')
+                    }
+                }
+            });
+            $(this).addClass('disabled');
+            $(this).attr('disabled', true);
+            let time = 30;
+            $(this).text(time+'s');
+            let interval = setInterval(() => {
+                if(time <= 0){
+                    clearInterval(interval);
+                    $(this).removeClass('disabled');
+                    $(this).attr('disabled', false);
+                    $(this).text('发送验证码');
+                    return false;
+                }
+                time --;
+                $(this).text(time+'s');
+            }, 1000)
+
+        });
+        $('#id_commit').click(function () {
+            let formData = new FormData()
+            $.each($('#reg_form').serializeArray(), function (index, obj){
+                formData.append(obj.name, obj.value)
+            })
+            $.ajax({
+                url:'',
+                type:'post',
+                data:formData,
+
+                contentType:false,
+                processData:false,
+                
+                success:function (args) {
+                    if(args.code===1000){
+                        window.location.href = args.url;
+                    }else {
+                        $.each(args.msg, function (index, obj) {
+                            let targetId = '#id_'+index;
+                            $(targetId).next().text(obj[0]).parent().addClass('has-error')
+                        })
+
+                    }
+                }
+                
+            })
+        })
+        $('input').focus(function (){
+            $(this).next().text('').parent().removeClass('has-error')
+        })
+    </script>
+
+{% endblock %}
