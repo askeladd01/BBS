@@ -6,6 +6,7 @@
 
     {% load static %}
     <link href="{% static '/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static '/base.css' %}">
     <script src="{% static '/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static '/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
     {% block header %}{% endblock %}
@@ -63,6 +64,13 @@
 
 
 {% block content %}{% endblock %}
+
+<div class="footer">
+    <div class="website-info">
+        <p>浙ICP备2021021058号-1  Copyright &copy; 2021 guoxuu.top 版权所有</p>
+        <p id="last">意见反馈或联系我（guoxuu@outlook.com）</p>
+    </div>
+</div>
 
 {% block loginmodel %}
     <!--登录模态框-->
