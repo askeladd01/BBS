@@ -5,7 +5,7 @@ from . import views
 
 urlpatterns = [
     path('addsite/', views.add_site, name='add_site'),
-    path('typeandtag/', views.edit_type_and_tag, name='edit_type_and_tag'),
+    path('typeandtag/', views.type_and_tag, name='edit_type_and_tag'),
     path('type_or_tag/add', views.add_type_or_tag, name='add_type_or_tag'),
     path('type_or_tag/del', views.delete_type_or_tag, name='delete_type_or_tag'),
     path('article/delete/', views.delete_article, name='delete_article'),

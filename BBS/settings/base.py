@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'comment',
     'like',
     'read',
-    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -119,27 +118,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'user.UserInfo'
 
 LOGIN_URL = '/user/login/'
-
-
-# ckeditor配置
-CKEDITOR_CONFIGS = {
-    'default': {},
-    'awesome_ckeditor': {
-        'toolbar_CustomToolbarConfig': [
-            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', 'RemoveFormat'],
-            ['Link', 'Unlink', 'Anchor'],
-            ['TextColor', 'BGColor'],
-            ['NumberedList', 'BulletedList'],
-            ['Smiley', 'SpecialChar', 'Blockquote']
-        ],
-        'toolbar': 'CustomToolbarConfig',
-        'tabSpaces': 4,
-        'width': 'auto',
-        'height': '100',
-        'removePlugins': 'elementspath',
-        'resize_enabled': False,
-        }
-}
 
 
 # db cache

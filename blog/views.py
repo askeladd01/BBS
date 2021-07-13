@@ -34,7 +34,7 @@ def site(request, username, **kwargs):
         # 分页器
         content = MyPaginator(request, article_list, 10)
 
-        content['username'] = user_obj.get_name
+        content['user_obj'] = user_obj
         content['blog_obj'] = blog_obj
         return render(request, 'site.html', content)
     else:
@@ -76,7 +76,7 @@ def add_site(request):
     return render(request, 'addsite.html', {'form_obj': form_obj})
 
 
-def edit_type_and_tag(request):
+def type_and_tag(request):
     user_obj = request.user
     article_types = models.ArticleType.objects.filter(blog=user_obj.blog)
     article_tags = models.ArticleTag.objects.filter(blog=user_obj.blog)

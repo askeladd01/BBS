@@ -23,16 +23,12 @@
                     <tr>
                         <th>分类</th>
                         <th>操作</th>
-                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for type in article_types %}
                         <tr>
                             <td><a href="{% url 'site_filter' user.username 'type' type.pk %}">{{ type.type_name }}</a>
-                            </td>
-                            <td>
-                                <button class="btn btn-info btn-xs">编辑</button>
                             </td>
                             <td>
                                 <button class="btn btn-info btn-xs del" obj_id="{{ type.pk }}" del_for="type">删除</button>
@@ -58,16 +54,13 @@
                     <tr>
                         <th>标签</th>
                         <th>操作</th>
-                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for tag in article_tags %}
                         <tr>
                             <td><a href="{% url 'site_filter' user.username 'tag' tag.pk %}">{{ tag.tag_name }}</a></td>
-                            <td>
-                                <button class="btn btn-info btn-xs">编辑</button>
-                            </td>
+
                             <td>
                                 <button class="btn btn-info btn-xs del" obj_id="{{ tag.pk }}" del_for="tag">删除</button>
                             </td>

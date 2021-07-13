@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-{{ username }}的个人站点
+{{ user_obj.get_name }}的个人站点
 {% endblock %}
 
 {{% block usersite %}
@@ -24,7 +24,7 @@
                 <ul class="media-list">
                     {% for article_obj in page_obj %}
                       <li class="media">
-                      <h4 class="media-heading"><a href="{% url 'article_detail' username article_obj.pk %}">{{ article_obj.title}}</a></h4>
+                      <h4 class="media-heading"><a href="{% url 'article_detail' user_obj.username article_obj.pk %}">{{ article_obj.title}}</a></h4>
                         <div class="media-left">
                           <a href="#">
                             <img class="media-object" src="/user/media/{{ article_obj.blog.userinfo.avatar }}" alt="用户头像" width="80">
@@ -36,7 +36,7 @@
                         <div class="media-bottom pull-right">
                             <span>posted @</span>
                             <span>{{ article_obj.create_time|date:'Y-m-d H:i:s' }}</span>
-                            <span>{{ article_obj.blog.userinfo.username }}</span>
+                            <span>{{ article_obj.blog.userinfo.get_name }}</span>
                             {% load comment_tags %}
                             <span class="glyphicon glyphicon-comment">({% get_comment_count article_obj %})</span>
                             {% load like_tags %}
@@ -87,7 +87,7 @@
             {% block right %}
                 <div class="col-md-3">
                     {% load blog_tags %}
-                    {% right_menu user.username %}
+                    {% right_menu user_obj.username %}
                 </div>
             {% endblock %}
 

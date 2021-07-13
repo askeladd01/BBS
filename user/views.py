@@ -239,7 +239,7 @@ def set_avatar(request):
 def data_center(request):
     blog = request.user.blog
     article_content_type = ContentType.objects.get_for_model(Article)
-    dates, read_nums = get_week_read_data(article_content_type, request.user)
+    dates, read_nums = get_week_read_data(article_content_type, request.user.username)
     yesterday_hot_articles = get_user_yesterday_hot_article(blog)
     week_hot_articles = get_user_week_hot_article(blog)
     return render(request, 'user/data_center.html', {'dates': dates, 'read_nums': read_nums,

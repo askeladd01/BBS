@@ -2,16 +2,14 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ObjectDoesNotExist
 
-from ckeditor.widgets import CKEditorWidget
-
 from .models import Comment
 
 
 class CommentForm(forms.Form):
     content_type = forms.CharField(widget=forms.HiddenInput)
     object_id = forms.IntegerField(widget=forms.HiddenInput)
-    content = forms.CharField(widget=CKEditorWidget(config_name='awesome_ckeditor'), label=False,
-                              error_messages={'required': '评论内容不能为空'})
+    content = forms.CharField(label=False, error_messages={'required': '评论内容不能为空'},
+                              widget=forms.Textarea(attrs={'class': 'form-control'}))
 
     reply_comment_id = forms.IntegerField(widget=forms.HiddenInput(attrs={'id': 'reply_comment_id'}))
 
