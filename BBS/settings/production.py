@@ -65,7 +65,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/home/myblog_debug.log',
+            'filename': '/home/BBS_debug.log',
         },
         'mail_admins': {
                     'level': 'ERROR',
