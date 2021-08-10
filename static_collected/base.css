@@ -1,0 +1,14 @@
+.footer {
+
+    margin-top: 3em;
+    background-color: rgb(236,236,236);
+    color: rgb(153,153,153);
+}
+.website-info {
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 10px;
+}
+#last {
+    margin-bottom: 0;
+}
